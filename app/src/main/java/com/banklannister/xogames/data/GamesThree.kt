@@ -1,0 +1,48 @@
+package com.banklannister.xogames.data
+
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import com.banklannister.xogames.models.GameModel
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+
+
+object GamesThree  {
+    private var _gameModel: MutableLiveData<GameModel> = MutableLiveData()
+    var gameModel: LiveData<GameModel> = _gameModel
+    var myID = ""
+
+
+    fun saveGame(model: GameModel) {
+            _gameModel.postValue(model)
+            if (model.gameId != "-1") {
+                Firebase.firestore.collection("games")
+                    .document(model.gameId)
+                    .set(model)
+
+        }
+
+    }
+
+    fun fetchGameData() {
+            _gameModel.value?.apply {
+                if (gameId != "-1") {
+                    Firebase.firestore.collection("games")
+                        .document(gameId)
+                        .addSnapshotListener { value, error ->
+                            val model = value?.toObject(GameModel::class.java)
+                            _gameModel.postValue(model!!)
+                }
+            }
+        }
+    }
+
+}
+
+
+
+
+
+
+
+

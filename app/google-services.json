@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "569910580677",
+    "project_id": "xo-games-acbf4",
+    "storage_bucket": "xo-games-acbf4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:569910580677:android:156ddc25fa8671bcf6e7ac",
+        "android_client_info": {
+          "package_name": "com.banklannister.xogames"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBMMAb7m2SzhQEgB4akGbkS9857Wud3Q5Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
