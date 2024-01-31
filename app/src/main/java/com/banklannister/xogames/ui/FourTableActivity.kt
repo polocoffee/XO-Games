@@ -80,9 +80,6 @@ class FourTableActivity : AppCompatActivity(), View.OnClickListener {
                         binding.readyButton.visibility = View.VISIBLE
                         "MATCH ID :$matchId"
                     }
-                    GameState.JOINED ->{
-                        "Click on start game"
-                    }
                     GameState.INPROGRESS ->{
                         binding.readyButton.visibility = View.VISIBLE
                         when(GamesFour.myID){
@@ -139,7 +136,6 @@ class FourTableActivity : AppCompatActivity(), View.OnClickListener {
 
         gamesFourData?.apply {
             for ( i in winningPos){
-                //0123
                 if(
                     position[i[0]] == position[i[1]] &&
                     position[i[1]]== position[i[2]] &&

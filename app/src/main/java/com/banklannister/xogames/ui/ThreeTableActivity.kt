@@ -67,9 +67,6 @@ class ThreeTableActivity : AppCompatActivity(),View.OnClickListener {
                         binding.readyButton.visibility = View.VISIBLE
                         "MATCH ID :$matchId"
                     }
-                    GameState.JOINED ->{
-                        "Click on start game"
-                    }
                     GameState.INPROGRESS ->{
                         binding.readyButton.visibility = View.VISIBLE
                         when(GamesThree.myID){
