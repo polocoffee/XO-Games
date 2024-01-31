@@ -4,16 +4,16 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import com.banklannister.xogames.data.GameState
 import com.banklannister.xogames.data.GamesThree
 import com.banklannister.xogames.databinding.ActivityThreeTableBinding
-import com.banklannister.xogames.models.GameModel
-import com.banklannister.xogames.models.GameStatus
+import com.banklannister.xogames.models.GamesThreeData
 
 class ThreeTableActivity : AppCompatActivity(),View.OnClickListener {
 
-    lateinit var binding: ActivityThreeTableBinding
+    private lateinit var binding: ActivityThreeTableBinding
 
-    private var gameModel : GameModel? = null
+    private var gamesThreeData : GamesThreeData? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,7 +21,7 @@ class ThreeTableActivity : AppCompatActivity(),View.OnClickListener {
         binding = ActivityThreeTableBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        GamesThree.fetchGameData()
+        GamesThree.fetchGameDataThree()
 
         binding.btn0.setOnClickListener(this)
         binding.btn1.setOnClickListener(this)
@@ -33,12 +33,12 @@ class ThreeTableActivity : AppCompatActivity(),View.OnClickListener {
         binding.btn7.setOnClickListener(this)
         binding.btn8.setOnClickListener(this)
 
-        binding.startGameBtn.setOnClickListener {
+        binding.readyButton.setOnClickListener {
             startGame()
         }
 
         GamesThree.gameModel.observe(this){
-            gameModel = it
+            gamesThreeData = it
             setUI()
         }
 
@@ -47,42 +47,42 @@ class ThreeTableActivity : AppCompatActivity(),View.OnClickListener {
 
     }
 
-    fun setUI(){
-        gameModel?.apply {
-            binding.btn0.text = filledPos[0]
-            binding.btn1.text = filledPos[1]
-            binding.btn2.text = filledPos[2]
-            binding.btn3.text = filledPos[3]
-            binding.btn4.text = filledPos[4]
-            binding.btn5.text = filledPos[5]
-            binding.btn6.text = filledPos[6]
-            binding.btn7.text = filledPos[7]
-            binding.btn8.text = filledPos[8]
+    private fun setUI(){
+        gamesThreeData?.apply {
+            binding.btn0.text = position[0]
+            binding.btn1.text = position[1]
+            binding.btn2.text = position[2]
+            binding.btn3.text = position[3]
+            binding.btn4.text = position[4]
+            binding.btn5.text = position[5]
+            binding.btn6.text = position[6]
+            binding.btn7.text = position[7]
+            binding.btn8.text = position[8]
 
-            binding.startGameBtn.visibility = View.VISIBLE
+            binding.readyButton.visibility = View.VISIBLE
 
             binding.gameStatusText.text =
                 when(gameStatus){
-                    GameStatus.CREATED -> {
-                        binding.startGameBtn.visibility = View.VISIBLE
-                        "Game ID :"+ gameId
+                    GameState.CREATED -> {
+                        binding.readyButton.visibility = View.VISIBLE
+                        "MATCH ID :$matchId"
                     }
-                    GameStatus.JOINED ->{
+                    GameState.JOINED ->{
                         "Click on start game"
                     }
-                    GameStatus.INPROGRESS ->{
-                        binding.startGameBtn.visibility = View.VISIBLE
+                    GameState.INPROGRESS ->{
+                        binding.readyButton.visibility = View.VISIBLE
                         when(GamesThree.myID){
                             currentPlayer -> "Your turn"
-                            else ->  currentPlayer + " turn"
+                            else -> "$currentPlayer turn"
                         }
 
                     }
-                    GameStatus.FINISHED ->{
+                    GameState.FINISHED ->{
                         if(winner.isNotEmpty()) {
                             when(GamesThree.myID){
                                 winner -> "You won"
-                                else ->   winner + " Won"
+                                else -> "$winner Won"
                             }
 
                         }
@@ -94,22 +94,22 @@ class ThreeTableActivity : AppCompatActivity(),View.OnClickListener {
     }
 
 
-    fun startGame(){
-        gameModel?.apply {
+    private fun startGame(){
+        gamesThreeData?.apply {
             updateGameData(
-                GameModel(
-                    gameId = gameId,
-                    gameStatus = GameStatus.INPROGRESS
+                GamesThreeData(
+                    matchId = matchId,
+                    gameStatus = GameState.INPROGRESS
                 )
             )
         }
     }
 
-    fun updateGameData(model : GameModel){
-        GamesThree.saveGame(model)
+    private fun updateGameData(model : GamesThreeData){
+        GamesThree.saveGameThree(model)
     }
 
-    fun checkForWinner(){
+   private fun checkForWinner(){
         val winningPos = arrayOf(
             intArrayOf(0,1,2),
             intArrayOf(3,4,5),
@@ -121,21 +121,20 @@ class ThreeTableActivity : AppCompatActivity(),View.OnClickListener {
             intArrayOf(2,4,6),
         )
 
-        gameModel?.apply {
+        gamesThreeData?.apply {
             for ( i in winningPos){
-                //012
                 if(
-                    filledPos[i[0]] == filledPos[i[1]] &&
-                    filledPos[i[1]]== filledPos[i[2]] &&
-                    filledPos[i[0]].isNotEmpty()
+                    position[i[0]] == position[i[1]] &&
+                    position[i[1]]== position[i[2]] &&
+                    position[i[0]].isNotEmpty()
                 ){
-                    gameStatus = GameStatus.FINISHED
-                    winner = filledPos[i[0]]
+                    gameStatus = GameState.FINISHED
+                    winner = position[i[0]]
                 }
             }
 
-            if( filledPos.none(){ it.isEmpty() }){
-                gameStatus = GameStatus.FINISHED
+            if( position.none(){ it.isEmpty() }){
+                gameStatus = GameState.FINISHED
             }
 
             updateGameData(this)
@@ -143,15 +142,15 @@ class ThreeTableActivity : AppCompatActivity(),View.OnClickListener {
     }
 
     override fun onClick(v: View?) {
-        gameModel?.apply {
-            if(gameStatus!= GameStatus.INPROGRESS){
-                Toast.makeText(applicationContext,"Game not started",Toast.LENGTH_SHORT).show()
+        gamesThreeData?.apply {
+            if(gameStatus!= GameState.INPROGRESS){
+                Toast.makeText(applicationContext,"PRESS READY BUTTON",Toast.LENGTH_SHORT).show()
                 return
             }
 
-            val clickedPos =(v?.tag  as String).toInt()
-            if(filledPos[clickedPos].isEmpty()){
-                filledPos[clickedPos] = currentPlayer
+            val clickedPosition =(v?.tag  as String).toInt()
+            if(position[clickedPosition].isEmpty()){
+                position[clickedPosition] = currentPlayer
                 currentPlayer = if(currentPlayer=="X") "O" else "X"
                 checkForWinner()
                 updateGameData(this)

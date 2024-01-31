@@ -1,20 +1,19 @@
 package com.banklannister.xogames.ui
 
-import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import com.banklannister.xogames.data.GameState
 import com.banklannister.xogames.data.GamesFour
 import com.banklannister.xogames.databinding.ActivityFourTableBinding
-import com.banklannister.xogames.models.GameModelFour
-import com.banklannister.xogames.models.GameStatus
+import com.banklannister.xogames.models.GamesFourData
 
 class FourTableActivity : AppCompatActivity(), View.OnClickListener {
 
-    lateinit var binding: ActivityFourTableBinding
+    private lateinit var binding: ActivityFourTableBinding
 
-    private var gameModelFour : GameModelFour? = null
+    private var gamesFourData : GamesFourData? = null
 
 
 
@@ -42,12 +41,12 @@ class FourTableActivity : AppCompatActivity(), View.OnClickListener {
         binding.btn14.setOnClickListener(this)
         binding.btn15.setOnClickListener(this)
 
-        binding.startGameBtn.setOnClickListener {
+        binding.readyButton.setOnClickListener {
             startGame()
         }
 
         GamesFour.gameModel.observe(this){
-            gameModelFour = it
+            gamesFourData = it
             setUi()
         }
 
@@ -55,48 +54,48 @@ class FourTableActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun setUi(){
-        gameModelFour?.apply {
-            binding.btn0.text = filledPos[0]
-            binding.btn1.text = filledPos[1]
-            binding.btn2.text = filledPos[2]
-            binding.btn3.text = filledPos[3]
-            binding.btn4.text = filledPos[4]
-            binding.btn5.text = filledPos[5]
-            binding.btn6.text = filledPos[6]
-            binding.btn7.text = filledPos[7]
-            binding.btn8.text = filledPos[8]
-            binding.btn9.text = filledPos[9]
-            binding.btn10.text = filledPos[10]
-            binding.btn11.text = filledPos[11]
-            binding.btn12.text = filledPos[12]
-            binding.btn13.text = filledPos[13]
-            binding.btn14.text = filledPos[14]
-            binding.btn15.text = filledPos[15]
+        gamesFourData?.apply {
+            binding.btn0.text = position[0]
+            binding.btn1.text = position[1]
+            binding.btn2.text = position[2]
+            binding.btn3.text = position[3]
+            binding.btn4.text = position[4]
+            binding.btn5.text = position[5]
+            binding.btn6.text = position[6]
+            binding.btn7.text = position[7]
+            binding.btn8.text = position[8]
+            binding.btn9.text = position[9]
+            binding.btn10.text = position[10]
+            binding.btn11.text = position[11]
+            binding.btn12.text = position[12]
+            binding.btn13.text = position[13]
+            binding.btn14.text = position[14]
+            binding.btn15.text = position[15]
 
-            binding.startGameBtn.visibility = View.VISIBLE
+            binding.readyButton.visibility = View.VISIBLE
 
             binding.gameStatusText.text =
                 when(gameStatus){
-                    GameStatus.CREATED -> {
-                        binding.startGameBtn.visibility = View.VISIBLE
-                        "Game ID :"+ gameId
+                    GameState.CREATED -> {
+                        binding.readyButton.visibility = View.VISIBLE
+                        "MATCH ID :$matchId"
                     }
-                    GameStatus.JOINED ->{
+                    GameState.JOINED ->{
                         "Click on start game"
                     }
-                    GameStatus.INPROGRESS ->{
-                        binding.startGameBtn.visibility = View.VISIBLE
+                    GameState.INPROGRESS ->{
+                        binding.readyButton.visibility = View.VISIBLE
                         when(GamesFour.myID){
                             currentPlayer -> "Your turn"
-                            else ->  currentPlayer + " turn"
+                            else -> "$currentPlayer turn"
                         }
 
                     }
-                    GameStatus.FINISHED ->{
+                    GameState.FINISHED ->{
                         if(winner.isNotEmpty()) {
                             when(GamesFour.myID){
                                 winner -> "You won"
-                                else ->   winner + " Won"
+                                else -> "$winner Won"
                             }
 
                         }
@@ -110,17 +109,17 @@ class FourTableActivity : AppCompatActivity(), View.OnClickListener {
 
 
    private fun startGame(){
-        gameModelFour?.apply {
+        gamesFourData?.apply {
             updateGameData(
-                GameModelFour(
-                    gameId = gameId,
-                    gameStatus = GameStatus.INPROGRESS
+                GamesFourData(
+                    matchId = matchId,
+                    gameStatus = GameState.INPROGRESS
                 )
             )
         }
     }
 
-    private fun updateGameData(model : GameModelFour){
+    private fun updateGameData(model : GamesFourData){
         GamesFour.saveGameFour(model)
     }
 
@@ -138,22 +137,22 @@ class FourTableActivity : AppCompatActivity(), View.OnClickListener {
             intArrayOf(3,6,9,12),
         )
 
-        gameModelFour?.apply {
+        gamesFourData?.apply {
             for ( i in winningPos){
                 //0123
                 if(
-                    filledPos[i[0]] == filledPos[i[1]] &&
-                    filledPos[i[1]]== filledPos[i[2]] &&
-                    filledPos[i[2]] == filledPos[i[3]] &&
-                    filledPos[i[0]].isNotEmpty()
+                    position[i[0]] == position[i[1]] &&
+                    position[i[1]]== position[i[2]] &&
+                    position[i[2]] == position[i[3]] &&
+                    position[i[0]].isNotEmpty()
                 ){
-                    gameStatus = GameStatus.FINISHED
-                    winner = filledPos[i[0]]
+                    gameStatus = GameState.FINISHED
+                    winner = position[i[0]]
                 }
             }
 
-            if( filledPos.none(){ it.isEmpty() }){
-                gameStatus = GameStatus.FINISHED
+            if(position.none(){ it.isEmpty() }){
+                gameStatus = GameState.FINISHED
             }
 
             updateGameData(this)
@@ -161,15 +160,15 @@ class FourTableActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(v: View?) {
-        gameModelFour?.apply {
-            if(gameStatus!= GameStatus.INPROGRESS){
-                Toast.makeText(applicationContext,"Game not started", Toast.LENGTH_SHORT).show()
+        gamesFourData?.apply {
+            if(gameStatus!= GameState.INPROGRESS){
+                Toast.makeText(applicationContext,"PRESS READY BUTTON", Toast.LENGTH_SHORT).show()
                 return
             }
 
-            val clickedPos =(v?.tag  as String).toInt()
-            if(filledPos[clickedPos].isEmpty()){
-                filledPos[clickedPos] = currentPlayer
+            val clickedPosition =(v?.tag  as String).toInt()
+            if(position[clickedPosition].isEmpty()){
+                position[clickedPosition] = currentPlayer
                 currentPlayer = if(currentPlayer=="X") "O" else "X"
                 checkForWinner()
                 updateGameData(this)

@@ -2,35 +2,35 @@ package com.banklannister.xogames.data
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.banklannister.xogames.models.GameModel
+import com.banklannister.xogames.models.GamesThreeData
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
 
 object GamesThree  {
-    private var _gameModel: MutableLiveData<GameModel> = MutableLiveData()
-    var gameModel: LiveData<GameModel> = _gameModel
+    private var _gameModel: MutableLiveData<GamesThreeData> = MutableLiveData()
+    var gameModel: LiveData<GamesThreeData> = _gameModel
     var myID = ""
 
 
-    fun saveGame(model: GameModel) {
+    fun saveGameThree(model: GamesThreeData) {
             _gameModel.postValue(model)
-            if (model.gameId != "-1") {
+            if (model.matchId != "-1") {
                 Firebase.firestore.collection("games")
-                    .document(model.gameId)
+                    .document(model.matchId)
                     .set(model)
 
         }
 
     }
 
-    fun fetchGameData() {
+    fun fetchGameDataThree() {
             _gameModel.value?.apply {
-                if (gameId != "-1") {
+                if (matchId != "-1") {
                     Firebase.firestore.collection("games")
-                        .document(gameId)
-                        .addSnapshotListener { value, error ->
-                            val model = value?.toObject(GameModel::class.java)
+                        .document(matchId)
+                        .addSnapshotListener { value, _ ->
+                            val model = value?.toObject(GamesThreeData::class.java)
                             _gameModel.postValue(model!!)
                 }
             }

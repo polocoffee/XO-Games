@@ -4,12 +4,12 @@ import android.content.Intent
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.banklannister.xogames.data.GameState
 import com.banklannister.xogames.data.GamesFour
 import com.banklannister.xogames.data.GamesThree
 import com.banklannister.xogames.databinding.ActivityMainBinding
-import com.banklannister.xogames.models.GameModel
-import com.banklannister.xogames.models.GameModelFour
-import com.banklannister.xogames.models.GameStatus
+import com.banklannister.xogames.models.GamesFourData
+import com.banklannister.xogames.models.GamesThreeData
 import com.banklannister.xogames.ui.FourTableActivity
 import com.banklannister.xogames.ui.ThreeTableActivity
 import kotlin.random.Random
@@ -51,10 +51,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun createGameThreeTable() {
-        GamesThree.saveGame(
-            GameModel(
-                gameStatus = GameStatus.CREATED,
-                gameId = Random.nextInt(100..999).toString()
+        GamesThree.saveGameThree(
+            GamesThreeData(
+                gameStatus = GameState.CREATED,
+                matchId = Random.nextInt(1000..9999).toString()
             )
         )
 
@@ -63,9 +63,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun createGameFourTable() {
         GamesFour.saveGameFour(
-            GameModelFour(
-                gameStatus = GameStatus.CREATED,
-                gameId = Random.nextInt(1000..9999).toString()
+            GamesFourData(
+                gameStatus = GameState.CREATED,
+                matchId = Random.nextInt(1000..9999).toString()
             )
         )
 
